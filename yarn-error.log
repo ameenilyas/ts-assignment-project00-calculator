@@ -1,55 +1,37 @@
 Arguments: 
-  /home/king/.nvm/versions/node/v14.20.0/bin/node /home/king/.node/corepack/yarn/1.22.15/bin/yarn.js add .
+  C:\Program Files\nodejs\node.exe C:\Users\User\AppData\Local\node\corepack\yarn\1.22.19\bin\yarn.js init
 
 PATH: 
-  /home/king/.nvm/versions/node/v14.20.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+  C:\Users\User\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\User\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\Git\cmd;C:\Users\User\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files\Amazon\AWSCLIV2;C:\Users\User\AppData\Local\Microsoft\WindowsApps;C:\Users\User\AppData\Roaming\npm;C:\Users\User\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\User\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
 
 Yarn version: 
-  1.22.15
+  1.22.19
 
 Node version: 
-  14.20.0
+  14.17.3
 
 Platform: 
-  linux x64
+  win32 x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fnanospinner: Not found
-      at Request.params.callback [as _callback] (/home/king/.node/corepack/yarn/1.22.15/lib/cli.js:66140:18)
-      at Request.self.callback (/home/king/.node/corepack/yarn/1.22.15/lib/cli.js:140885:22)
-      at Request.emit (events.js:400:28)
-      at Request.<anonymous> (/home/king/.node/corepack/yarn/1.22.15/lib/cli.js:141857:10)
-      at Request.emit (events.js:400:28)
-      at IncomingMessage.<anonymous> (/home/king/.node/corepack/yarn/1.22.15/lib/cli.js:141779:12)
-      at Object.onceWrapper (events.js:519:28)
-      at IncomingMessage.emit (events.js:412:35)
-      at endReadableNT (internal/streams/readable.js:1333:12)
-      at processTicksAndRejections (internal/process/task_queues.js:82:21)
+  Error: canceled
+      at Interface.<anonymous> (C:\Users\User\AppData\Local\node\corepack\yarn\1.22.19\lib\cli.js:137150:13)
+      at Interface.emit (events.js:375:28)
+      at Interface._ttyWrite (readline.js:910:16)
+      at ReadStream.onkeypress (readline.js:235:10)
+      at ReadStream.emit (events.js:375:28)
+      at emitKeys (internal/readline/utils.js:358:14)
+      at emitKeys.next (<anonymous>)
+      at ReadStream.onData (readline.js:1179:36)
+      at ReadStream.emit (events.js:375:28)
+      at addChunk (internal/streams/readable.js:290:12)
 
 npm manifest: 
   {
-    "type": "module",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/ameenilyas"
-    },
-    "main": "index.js",
-    "scripts": {
-      "start": "node ."
-    },
+    "type":"module",
     "dependencies": {
-      "chalk": "^4.1.2",
-      "chalk-animation": "^1.6.0",
-      "figlet": "^1.5.2",
-      "gradient-string": "^2.0.0",
-      "inquirer": "^9.0.2",
-      "nanospinner": "^1.0.0",
-      "@types/chalk": "^4.1.2",
-      "@types/chalk-animation": "^1.6.0",
-      "@types/figlet": "^1.5.2",
-      "@types/gradient-string": "^2.0.0",
-      "@types/nanospinner": "^1.0.0",
-      "@types/inquirer": "^9.0.2"
+      "@types/inquirer": "^9.0.2",
+      "inquirer": "^9.1.3"
     }
   }
 
