@@ -1,38 +1,64 @@
 import inquirer from "inquirer";
 
+interface CoursesInterface {
+  course_id: string;
+  course_name: string;
+  is_fee_paid: boolean;
+  fee_price: number;
+}
+
 interface StudentInterface {
   id: string;
   name: string;
-  is_fee_paid: boolean;
-  courses_enroll: string[];
+  courses_enroll: CoursesInterface[];
   balance: number;
   showStatus: Function;
+  enroll: Function;
 }
 
-// enum StatusEnum {
-//   "Student Options" = "student_options",
-//   "View Students" = "view_students",
-//   "Add Student" = "add_student",
-//   "Exit" = "exit",
-// }
-
-const main_options: string[] = ["view_students", "add_student", "exit"];
-let students_options: string[] = [];
-let student_options: string[] = [
+const main_menu: [string, string, string] = [
+  "view_students",
+  "add_student",
+  "~exit",
+];
+const courses: [CoursesInterface, CoursesInterface, CoursesInterface] = [
+  {
+    course_id: Math.floor(Math.random() * 10000).toString(),
+    course_name: "metaverse",
+    fee_price: 3000,
+    is_fee_paid: false,
+  },
+  {
+    course_id: Math.floor(Math.random() * 10000).toString(),
+    course_name: "blockchain",
+    fee_price: 2500,
+    is_fee_paid: false,
+  },
+  {
+    course_id: Math.floor(Math.random() * 10000).toString(),
+    course_name: "cnc",
+    fee_price: 2000,
+    is_fee_paid: false,
+  },
+];
+const student_options: string[] = [
+  "show status",
+  "my courses",
   "enroll",
   "view balance",
   "pay tution fee",
-  "show status",
-  "exit",
+  "~main_menu",
+  "~exit",
 ];
+let students_options: string[] = [];
 
 const students: StudentInterface[] = [];
-let status: string = "main_options";
+let status: string = "~main_menu";
 
 class Student implements StudentInterface {
   public id: string;
   public name: string;
-  public courses_enroll: string[];
+  public courses_enroll: CoursesInterface[];
   public balance: number;
   public is_fee_paid: boolean;
 
@@ -54,8 +80,16 @@ class Student implements StudentInterface {
     console.log(`
     id: ${this.id}
     name: ${this.name}
-    courses: ${this.courses_enroll}
-    balance: ${this.balance}`);
+    balance: ${this.balance});
+    is fee paid: ${this.is_fee_paid}`);
+  }
+
+  enroll(course: CoursesInterface) {
+    this.courses_enroll.push(course);
+
+    console.log(
+      `Student enrolled in ${course?.course_name} course Successfully.`
+    );
   }
 }
 
@@ -83,17 +117,25 @@ async function addStudent(): Promise<string> {
   });
   return answers.student;
 }
-while (status !== "exit") {
-  const _name: string = students_options.find((name) => status === name) || "";
+
+let _student: StudentInterface | undefined;
+let _course: CoursesInterface | undefined;
+
+while (status !== "~exit") {
+  const _student_name: string =
+    students_options.find((name: string) => name === status) || "";
+
   switch (status) {
-    case "main_options":
-      status = await studentOption(main_options);
+    case "~main_menu":
+      status = await studentOption(main_menu);
 
       break;
     case "view_students":
       students_options = students
         .map((students) => students.name)
-        .concat(["main_options", "exit"]);
+        .concat(["~main_menu", "~exit"]);
+
+      if (!students_options.length) console.log("No Student Found...");
       status = await studentOption(students_options);
 
       break;
@@ -102,15 +144,66 @@ while (status !== "exit") {
       const student = new Student(student_name);
       students.push(student);
 
-      console.log(`Student ${student_name} added successfully.`);
-      status = "main_options";
+      console.log(`Student, '${student_name}' added successfully.`);
+      status = "~main_menu";
       break;
-    case _name: // dynamic Check
-      // const _student = students.find(student => student.name === _name);
+    case _student_name: // dynamic Check
+      _student = students.find(
+        (student: StudentInterface) => student.name === status
+      );
       status = await studentOption(student_options);
       break;
 
-    case "exit":
+    case "enroll":
+      const courses_name: string[] = courses
+        .map((course) => course.course_name)
+        .concat(["~main_menu", "~exit"]);
+
+      status = await studentOption(courses_name);
+      break;
+    case "view balance":
+      console.log(_student?.balance);
+      status = await studentOption(student_options);
+      break;
+
+    case "pay tution fee":
+      console.log(_student?.id);
+      status = await studentOption(student_options);
+      break;
+
+    case "my courses":
+      const my_courses = _student?.courses_enroll.map(
+        (course) => course.course_name
+      );
+      console.log(`You have enrolled in these courses, ${my_courses}`);
+      status = await studentOption(student_options);
+      break;
+
+    case "show status":
+      _student?.showStatus();
+      status = await studentOption(student_options);
+      break;
+
+    // enrolling in the course.
+    case "metaverse":
+      _course = courses.find((course) => course.course_name === "metaverse");
+      _student?.enroll(_course);
+      status = await studentOption(student_options);
+      break;
+
+    case "blockchain":
+      _course = courses.find((course) => course.course_name === "blockchain");
+      _student?.enroll(_course);
+      status = await studentOption(student_options);
+      break;
+
+    case "cnc":
+      _course = courses.find((course) => course.course_name === "cnc");
+      _student?.enroll(_course);
+      status = await studentOption(student_options);
+      break;
+
+    case "~exit":
       process.exit(0);
 
     default:
