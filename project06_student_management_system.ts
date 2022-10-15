@@ -6,7 +6,6 @@ interface CoursesInterface {
   is_fee_paid: boolean;
   fee_price: number;
 }
-
 interface StudentInterface {
   id: string;
   name: string;
@@ -37,11 +36,13 @@ const courses: [CoursesInterface, CoursesInterface, CoursesInterface] = [
     is_fee_paid: false,
   },
 ];
+
 const main_menu: [string, string, string] = [
   "view_students",
   "add_student",
   "~exit",
 ];
+
 const student_options: [string, string, string, string, string] = [
   "show status",
   "my courses",
