@@ -14,6 +14,7 @@ interface StudentInterface {
   // balance: number;
   showStatus: Function;
   enroll: Function;
+  pay_fee: Function;
 }
 
 const courses: [CoursesInterface, CoursesInterface, CoursesInterface] = [
@@ -56,8 +57,9 @@ let course_options: [string, string, string, string] = [
   "~main_menu",
   "~exit",
 ];
-let students_options: string[] = [];
+
 const students: StudentInterface[] = [];
+let students_options: string[] = [];
 let status: string = "~main_menu";
 
 class Student implements StudentInterface {
@@ -86,7 +88,6 @@ class Student implements StudentInterface {
     `);
     // balance: ${this.balance}
   }
-
   enroll(course: CoursesInterface) {
     const is_enrolled = this.courses_enroll.find(
       (course_enroll) => course_enroll.course_id === course.course_id
@@ -96,9 +97,22 @@ class Student implements StudentInterface {
     this.courses_enroll.push(course);
     console.log(`Enrolled in ${course?.course_name} course Successfully.`);
   }
-}
+  pay_fee(course: CoursesInterface) {
+    if (_course?.is_fee_paid)
+      return console.log("Bohut paise hen kia, Already paid...");
 
-async function studentOption(options: string[]): Promise<string> {
+    const updated_courses: CoursesInterface[] = this.courses_enroll.map(
+      (course_enroll) =>
+        course_enroll.course_id === course.course_id
+          ? { ...course_enroll, is_fee_paid: true }
+          : course_enroll
+    );
+
+    this.courses_enroll = updated_courses;
+    console.log(`Paid fee Successfully.`);
+  }
+}
+async function studentOptionPrompt(options: string[]): Promise<string> {
   const answers = await inquirer.prompt({
     name: "student_option",
     type: "list",
@@ -110,8 +124,7 @@ async function studentOption(options: string[]): Promise<string> {
   });
   return answers.student_option;
 }
-
-async function addStudent(): Promise<string> {
+async function addStudentPromt(): Promise<string> {
   const answers = await inquirer.prompt({
     name: "student",
     type: "input",
@@ -122,6 +135,55 @@ async function addStudent(): Promise<string> {
   });
   return answers.student;
 }
+async function showMyCourses() {
+  const my_courses = _student?.courses_enroll
+    .map((course) => course.course_name)
+    .concat(["~main_menu", "~exit"]);
+
+  if (my_courses?.length && my_courses?.length > 2) {
+    const course_name: string = await studentOptionPrompt(my_courses);
+    const updated_course = _student?.courses_enroll.find(
+      (course) => course.course_name === course_name
+    );
+    _course = updated_course ? { ...updated_course } : undefined;
+
+    previous_option = status;
+    status = `${course_name}-enrolled`;
+  } else {
+    console.log(
+      `You are not currently enrolled in any course, select enroll option to participate.`
+    );
+    previous_option = status;
+    status = await studentOptionPrompt(student_options);
+  }
+}
+async function enrollInCourse() {
+  const updated_course = courses.find(
+    (course) => course.course_name === status
+  );
+  _course = updated_course ? { ...updated_course } : undefined;
+  _student?.enroll(_course);
+  previous_option = status;
+  status = await studentOptionPrompt(student_options);
+}
+async function addStudent() {
+  const student_name = (await addStudentPromt()).trim();
+  const student = new Student(student_name);
+  students.push(student);
+
+  console.log(`Student, '${student_name}' added successfully.`);
+  previous_option = status;
+  status = "~main_menu";
+}
+async function viewStudent() {
+  students_options = students
+    .map((students) => students.name)
+    .concat(["~main_menu", "~exit"]);
+
+  if (!students_options.length) console.log("No Student Found...");
+  previous_option = status;
+  status = await studentOptionPrompt(students_options);
+}
 
 let _student: StudentInterface | undefined;
 let _course: CoursesInterface | undefined;
@@ -131,35 +193,26 @@ while (status !== "~exit") {
   const _student_name: string =
     students_options.find((name: string) => name === status) || "";
 
-  console.log({ status, students, _student });
-
   switch (status) {
     case "~main_menu":
-      status = await studentOption(main_menu);
-
+      previous_option = status;
+      status = await studentOptionPrompt(main_menu);
       break;
+
     case "view_students":
-      students_options = students
-        .map((students) => students.name)
-        .concat(["~main_menu", "~exit"]);
-
-      if (!students_options.length) console.log("No Student Found...");
-      status = await studentOption(students_options);
-
+      await viewStudent();
       break;
+
     case "add_student":
-      const student_name = (await addStudent()).trim();
-      const student = new Student(student_name);
-      students.push(student);
-
-      console.log(`Student, '${student_name}' added successfully.`);
-      status = "~main_menu";
+      await addStudent();
       break;
+
     case _student_name: // dynamic Check
       _student = students.find(
         (student: StudentInterface) => student.name === status
       );
-      status = await studentOption(student_options);
+      previous_option = status;
+      status = await studentOptionPrompt(student_options);
       break;
 
     case "enroll":
@@ -167,114 +220,67 @@ while (status !== "~exit") {
         .map((course) => course.course_name)
         .concat(["~main_menu", "~exit"]);
 
-      status = await studentOption(courses_name);
+      previous_option = status;
+      status = await studentOptionPrompt(courses_name);
       break;
+
     // case "view balance":
-    //   console.log(_student?.balance);
-    //   status = await studentOption(student_options);
-    //   break;
+    // console.log(_student?.balance);
+    // previous_option = status
+    // status = await studentOption(student_options);
+    // break;
 
     case "my courses":
-      const my_courses = _student?.courses_enroll
-        .map((course) => course.course_name)
-        .concat(["~main_menu", "~exit"]);
-
-      if (my_courses?.length && my_courses?.length > 2) {
-        console.log(`You have enrolled in these courses, ${my_courses}`);
-        const course_name: string = await studentOption(my_courses);
-        const updated_course = courses.find(
-          (course) => course.course_name === course_name
-        );
-        _course = updated_course ? { ...updated_course } : undefined;
-
-        status = `${course_name}-enrolled`;
-      } else {
-        console.log(
-          `You are not currently enrolled in any course, select enroll option to participate.`
-        );
-        status = await studentOption(student_options);
-      }
+      await showMyCourses();
       break;
 
     case "show status":
       _student?.showStatus();
-      status = await studentOption(student_options);
+      previous_option = status;
+      status = await studentOptionPrompt(student_options);
       break;
 
     // enrolling in the course.
     case "metaverse":
-      {
-        const updated_course = courses.find(
-          (course) => course.course_name === "metaverse"
-        );
-        _course = updated_course ? { ...updated_course } : undefined;
-        _student?.enroll(_course);
-        status = await studentOption(student_options);
-      }
+      await enrollInCourse();
       break;
+
     case "blockchain":
-      {
-        const updated_course = courses.find(
-          (course) => course.course_name === "blockchain"
-        );
-        _course = updated_course ? { ...updated_course } : undefined;
-        _student?.enroll(_course);
-        status = await studentOption(student_options);
-      }
+      await enrollInCourse();
       break;
 
     case "cnc":
-      {
-        const updated_course = courses.find(
-          (course) => course.course_name === "cnc"
-        );
-        _course = updated_course ? { ...updated_course } : undefined;
-        _student?.enroll(_course);
-        status = await studentOption(student_options);
-      }
+      await enrollInCourse();
       break;
 
     // course actions.
     case "metaverse-enrolled":
-      status = await studentOption(course_options);
+      previous_option = status;
+      status = await studentOptionPrompt(course_options);
       break;
 
     case "blockchain-enrolled":
-      status = await studentOption(course_options);
+      previous_option = status;
+      status = await studentOptionPrompt(course_options);
       break;
 
     case "cnc-enrolled":
-      status = await studentOption(course_options);
+      previous_option = status;
+      status = await studentOptionPrompt(course_options);
       break;
 
     case "course status":
       console.log({ _course });
-      status = await studentOption(course_options);
+      previous_option = status;
+      status = await studentOptionPrompt(course_options);
       break;
 
     case "pay fee":
-      if (_course?.is_fee_paid) {
-        console.log("Bohut Paisa hen kiya, Already Paid...");
-      } else if (_course && !_course?.is_fee_paid) {
-        _course.is_fee_paid = true;
-        console.log(`Paid Fee Successfully of ${_course?.course_name} course.`);
-        if (_student?.courses_enroll.length) {
-          const updated_courses_enroll: CoursesInterface[] =
-            _student?.courses_enroll.map((course) =>
-              course.course_id === _course?.course_id ? _course : course
-            );
-          const updated_student: StudentInterface = {
-            ..._student,
-            courses_enroll: updated_courses_enroll,
-          };
-          const student_index = students.findIndex((student) =>
-            student.id === updated_student.id ? updated_student : student
-          );
-          students.splice(student_index, 1, updated_student);
-        }
-      }
+      _student?.pay_fee(_course);
+      if (_course?.is_fee_paid === false) _course.is_fee_paid = true;
 
-      status = await studentOption(course_options);
+      previous_option = status;
+      status = await studentOptionPrompt(course_options);
       break;
 
     case "~exit":
