@@ -36,12 +36,53 @@ async function gameOptionPrompt(options: string[]): Promise<string> {
   return answers.action;
 }
 
+function setEnemy() {
+  enemy_health = Math.floor(Math.random() * max_enemy_health);
+  enemy = enemies[Math.ceil(Math.random() * enemies.length - 1)];
+}
+
+function attack() {
+  const damageDealt: number = Math.round(Math.random() * attack_damage);
+  const damageTaken: number = Math.round(Math.random() * enemy_attack_damage);
+
+  enemy_health -= damageDealt;
+  health -= damageTaken;
+
+  console.log(`\t You sting the ${enemy} for ${damageDealt} damage.`);
+  console.log(`\t You receive ${damageTaken} in retaliation!`);
+  if (health < 1) {
+    console.log(
+      "\t you have taken too much damage, your are too weak to go on."
+    );
+    console.log(`Come later kid, with some attitude.`);
+    process.exit(0);
+  }
+}
+
+function drinkHealthPotion() {
+  if (num_health_potions > 0 && health <= 100) {
+    health += health_potion_heal_amount;
+    health = health > 100 ? 100 : health;
+    num_health_potions--;
+    console.log(
+      `\t You drink a health potion, healing yourself for ${health_potion_heal_amount} \n\t You now have health ${health} HP \n\t You have ${num_health_potions} health potions left.\n`
+    );
+  } else {
+    console.log(
+      `You have no health potions left, Defeat enemy for a chance to get one!`
+    );
+  }
+}
+
+let enemy_health: number = Math.floor(Math.random() * max_enemy_health);
+let enemy: string = enemies[Math.ceil(Math.random() * enemies.length - 1)];
+
 console.log("\t# Welcome to the Dungeon!");
 while (running) {
   console.log("-----------------------------------------------");
 
-  let enemy_health: number = Math.floor(Math.random() * max_enemy_health);
-  let enemy: string = enemies[Math.ceil(Math.random() * enemies.length - 1)];
+  // setting up Enemy
+  setEnemy();
   console.log(`\t# ${enemy} has appeared #\n`);
 
   //   GAME:
@@ -54,49 +95,15 @@ while (running) {
 
     switch (action) {
       case "Attack":
-        {
-          const damageDealt: number = Math.round(Math.random() * attack_damage);
-          const damageTaken: number = Math.round(
-            Math.random() * enemy_attack_damage
-          );
-
-          enemy_health -= damageDealt;
-          health -= damageTaken;
-
-          console.log(`\t You sting the ${enemy} for ${damageDealt} damage.`);
-          console.log(`\t You receive ${damageTaken} in retaliation!`);
-          if (health < 1) {
-            console.log(
-              "\t you have taken too much damage, your are too weak to go on."
-            );
-            console.log(`Come later kid, with some attitude.`);
-            process.exit(0);
-          }
-        }
+        attack();
         break;
 
       case "Drink Health potion":
-        {
-          if (num_health_potions > 0 && health <= 100) {
-            health += health_potion_heal_amount;
-            health = health > 100 ? 100 : health;
-            num_health_potions--;
-            console.log(
-              `\t You drink a health potion, healing yourself for ${health_potion_heal_amount} \n\t You now have health ${health} HP \n\t You have ${num_health_potions} health potions left.\n`
-            );
-          } else {
-            console.log(
-              `You have no health potions left, Defeat enemy for a chance to get one!`
-            );
-          }
-        }
+        drinkHealthPotion();
         break;
       case "Run":
         console.log(`\t You ran away from the enemy, ${enemy}!`);
-
-        enemy_health = Math.floor(Math.random() * max_enemy_health);
-        enemy = enemies[Math.ceil(Math.random() * enemies.length - 1)];
-
+        setEnemy();
         continue;
       // continue GAME;
 
@@ -110,19 +117,17 @@ while (running) {
     process.exit(0);
   }
 
-  console.log(
-    "----------------------------------------------------------------"
-  );
+  console.log("-----------------------------------------------");
   console.log(` # ${enemy} was defeated! #`);
   console.log(` # You have ${health} HP left #`);
+
   if (Math.floor(Math.random() * 100) < health_potion_drop_chance) {
     num_health_potions++;
     console.log(`# The ${enemy} dropped a health potion! #`);
     console.log(`# You now have ${num_health_potions} health potion(s). #`);
   }
-  console.log(
-    "----------------------------------------------------------------"
-  );
+
+  console.log("-----------------------------------------------");
 
   const action: string = await gameOptionPrompt(game_actions);
   switch (action) {
